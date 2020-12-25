@@ -69,7 +69,7 @@ parser.add_argument('--patch_size', type=int, default=1,
                     help='Patche sizes (default: 1)')
 parser.add_argument('--num_channels', type=int, default=1408,
                     help='Number of channels after backbone (default: 1408)')
-parser.add_argument('--model', type=str2bool, default=True,
+parser.add_argument('--model', type=str, default='',
                     help='The name of the model to load')
 
 ########################
@@ -275,7 +275,6 @@ class ClassifierHybrid(tf.keras.Model):
             ],
             name="augmentation",
         )
-        # self.augmentation.add(tf.keras.Input(shape=(260,260,3)))
 
 
     def get_backbone(self):
@@ -361,7 +360,7 @@ def main():
         # tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5,
         #                       patience=4, min_lr=1e-5),
         tf.keras.callbacks.ModelCheckpoint(
-            filepath = './models3/weights.epoch{epoch:03d}-val_accuracy{val_accuracy:.3f}',
+            filepath = './models/weights.epoch{epoch:03d}-val_accuracy{val_accuracy:.3f}',
             monitor="val_accuracy",
             verbose=0,
             save_best_only=False,
@@ -375,12 +374,14 @@ def main():
     # myModel = tf.keras.models.load_model('./checkpoint')
     myModel = ClassifierHybrid()
     myModel.setup()
-    myModel.flag = False
-    x = tf.zeros((1,260,260,3))
-    y = myModel(x)
-    myModel.flag = True
-    # if args.model:
-    #     myModel.load_weights('')#weights.044-0.780')
+    
+#     myModel.flag = False
+#     x = tf.zeros((1,260,260,3))
+#     y = myModel(x)
+#     myModel.flag = True
+    
+    if args.model != '':
+        myModel.load_weights(args.model)
 
     myModel.fit(x=myModel.train_ds,
                 batch_size=args.train_batch_size,
